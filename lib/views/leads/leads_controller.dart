@@ -20,7 +20,7 @@ class LeadsController extends GetxController {
       isLoading(true);
 
       final response = await apiService.get(
-        "leads/admin",
+        "leads/admin/all-leads",
         withAuth: true,
       );
 

@@ -49,9 +49,9 @@ class LeadDetailsScreen extends StatelessWidget {
                 title: "Customer Details",
                 icon: Icons.person_outline,
                 children: [
-                  _tile(Icons.person, lead["customer"]["userId"]["name"]),
-                  _tile(Icons.email, lead["customer"]["userId"]["email"]),
-                  _tile(Icons.phone, lead["customer"]["userId"]["phone"] ?? "-"),
+                  _tile(Icons.person, _safe(lead["customer"]?["userId"]?["name"])),
+                  _tile(Icons.email, _safe(lead["customer"]?["userId"]?["email"])),
+                  _tile(Icons.phone, _safe(lead["customer"]?["userId"]?["phone"])),
                 ],
               ),
 
@@ -60,8 +60,8 @@ class LeadDetailsScreen extends StatelessWidget {
                 title: "Vendor Details",
                 icon: Icons.business_outlined,
                 children: [
-                  _tile(Icons.store, lead["vendorId"]["businessName"]),
-                  _tile(Icons.location_on, lead["vendorId"]["city"]),
+                  _tile(Icons.store, _safe(lead["vendorId"]?["businessName"])),
+                  _tile(Icons.location_on, _safe(lead["vendorId"]?["city"])),
                 ],
               ),
 
@@ -70,15 +70,15 @@ class LeadDetailsScreen extends StatelessWidget {
                 title: "Event Information",
                 icon: Icons.event,
                 children: [
-                  _tile(Icons.celebration, lead["eventDetails"]["eventType"]),
+                  _tile(Icons.celebration, _safe(lead["eventDetails"]?["eventType"])),
                   _tile(Icons.calendar_today,
-                      _formatDate(lead["eventDetails"]["eventDate"])),
+                      _formatDate(lead["eventDetails"]?["eventDate"])),
                   _tile(Icons.groups,
-                      "${lead["eventDetails"]["guestCount"]} Guests"),
+                      "${lead["eventDetails"]?["guestCount"] ?? 0} Guests"),
                   _tile(Icons.currency_rupee,
-                      lead["eventDetails"]["budget"]),
+                      _safe(lead["eventDetails"]?["budget"])),
                   _tile(Icons.location_city,
-                      lead["eventDetails"]["city"]),
+                      _safe(lead["eventDetails"]?["city"])),
                 ],
               ),
 
@@ -88,11 +88,8 @@ class LeadDetailsScreen extends StatelessWidget {
                 icon: Icons.message_outlined,
                 children: [
                   Text(
-                    lead["message"] ?? "No message provided",
-                    style: TextStyle(
-                      color: AppColors.textPrimary, // ✅ BLACK
-                      height: 1.5,
-                    ),
+                    _safe(lead["message"], fallback: "No message provided"),
+                    style: const TextStyle(height: 1.5),
                   ),
                 ],
               ),
@@ -103,10 +100,7 @@ class LeadDetailsScreen extends StatelessWidget {
                 icon: Icons.sync,
                 children: [
                   DropdownButtonFormField<String>(
-                    value: lead["status"],
-                    style: TextStyle(
-                      color: AppColors.textPrimary, // ✅ BLACK TEXT
-                    ),
+                    value: lead["status"] ?? "new",
                     decoration: InputDecoration(
                       prefixIcon: const Icon(Icons.flag),
                       filled: true,
@@ -119,12 +113,7 @@ class LeadDetailsScreen extends StatelessWidget {
                     items: ["new", "contacted", "converted", "closed"]
                         .map((e) => DropdownMenuItem(
                       value: e,
-                      child: Text(
-                        e.toUpperCase(),
-                        style: TextStyle(
-                          color: AppColors.textPrimary, // ✅ BLACK
-                        ),
-                      ),
+                      child: Text(e.toUpperCase()),
                     ))
                         .toList(),
                     onChanged: (value) {
@@ -140,6 +129,25 @@ class LeadDetailsScreen extends StatelessWidget {
         );
       }),
     );
+  }
+
+  /// 🔥 SAFE VALUE HANDLER
+  String _safe(dynamic value, {String fallback = "-"}) {
+    if (value == null) return fallback;
+    if (value.toString().trim().isEmpty) return fallback;
+    return value.toString();
+  }
+
+  /// 🔥 DATE FORMATTER
+  static String _formatDate(dynamic date) {
+    if (date == null || date.toString().isEmpty) return "-";
+
+    try {
+      final d = DateTime.parse(date.toString());
+      return "${d.day}/${d.month}/${d.year}";
+    } catch (e) {
+      return "-";
+    }
   }
 
   /// 🔥 HEADER
@@ -160,7 +168,7 @@ class LeadDetailsScreen extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  lead["service"]["title"] ?? "",
+                  _safe(lead["service"]?["title"]),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
@@ -174,28 +182,16 @@ class LeadDetailsScreen extends StatelessWidget {
 
           const SizedBox(height: 10),
 
-          Row(
-            children: [
-              const Icon(Icons.event, color: Colors.white, size: 16),
-              const SizedBox(width: 6),
-              Text(
-                "${lead["eventDetails"]["eventType"]} • ${_formatDate(lead["eventDetails"]["eventDate"])}",
-                style: const TextStyle(color: Colors.white),
-              ),
-            ],
+          Text(
+            "${_safe(lead["eventDetails"]?["eventType"])} • ${_formatDate(lead["eventDetails"]?["eventDate"])}",
+            style: const TextStyle(color: Colors.white),
           ),
 
           const SizedBox(height: 6),
 
-          Row(
-            children: [
-              const Icon(Icons.location_on, color: Colors.white, size: 16),
-              const SizedBox(width: 6),
-              Text(
-                lead["eventDetails"]["city"],
-                style: const TextStyle(color: Colors.white),
-              ),
-            ],
+          Text(
+            _safe(lead["eventDetails"]?["city"]),
+            style: const TextStyle(color: Colors.white),
           ),
         ],
       ),
@@ -225,10 +221,7 @@ class LeadDetailsScreen extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 title,
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary, // ✅ BLACK
-                ),
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -248,20 +241,13 @@ class LeadDetailsScreen extends StatelessWidget {
         children: [
           Icon(icon, size: 16, color: Colors.grey),
           const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              text,
-              style: TextStyle(
-                color: AppColors.textPrimary, // ✅ BLACK
-              ),
-            ),
-          ),
+          Expanded(child: Text(text)),
         ],
       ),
     );
   }
 
-  Widget _statusChip(String status) {
+  Widget _statusChip(String? status) {
     Color color;
 
     switch (status) {
@@ -288,7 +274,7 @@ class LeadDetailsScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
-        status.toUpperCase(),
+        (status ?? "unknown").toUpperCase(),
         style: const TextStyle(
           color: Colors.white,
           fontSize: 11,
@@ -296,14 +282,5 @@ class LeadDetailsScreen extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  static String _formatDate(String date) {
-    try {
-      final d = DateTime.parse(date);
-      return "${d.day}/${d.month}/${d.year}";
-    } catch (e) {
-      return date;
-    }
   }
 }

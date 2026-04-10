@@ -17,7 +17,7 @@ class ApiService {
   /// 🔐 HEADERS
   Future<Map<String, String>> getHeaders({bool withAuth = false}) async {
     final token = await SecureStorageService.getToken();
-
+print("app_token: $token");
     final headers = {
       "Content-Type": "application/json",
       "x-app-type": "admin"

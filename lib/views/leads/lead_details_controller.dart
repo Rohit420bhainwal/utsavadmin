@@ -28,9 +28,11 @@ class LeadDetailsController extends GetxController {
 
       if (response["success"] == true) {
         lead.value = response["data"];
+      } else {
+        Get.snackbar("Error", "Failed to load lead");
       }
     } catch (e) {
-      print("Error: $e");
+      Get.snackbar("Error", e.toString());
     } finally {
       isLoading(false);
     }
