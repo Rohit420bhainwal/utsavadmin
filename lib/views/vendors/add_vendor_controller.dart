@@ -56,7 +56,7 @@ class AddVendorsController extends GetxController {
       /// 🔹 STEP 1: CREATE USER (IF NEEDED)
       if (isCreatingUser.value) {
         final userRes = await apiService.post(
-          "auth/register",
+          "auth/admin-create-vendor",
           {
             "name": userName,
             "email": email,

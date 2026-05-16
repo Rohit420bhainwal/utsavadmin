@@ -238,7 +238,7 @@ class AddVendorServiceScreen extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            /// 🔹 BUTTON
+           /* /// 🔹 BUTTON
             SizedBox(
               width: double.infinity,
               height: 50,
@@ -263,10 +263,59 @@ class AddVendorServiceScreen extends StatelessWidget {
                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
               ),
-            ),
+            ),*/
           ],
         ),
       ),
+
+        bottomNavigationBar: Container(
+          color: Colors.white, // Ensures the background matches your app theme
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: SafeArea(
+            child: Obx(() => SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: controller.isLoading.value
+                    ? null // 🔥 disable button while loading
+                    : () {
+                  controller.addOrUpdateService(
+                    title: titleController.text,
+                    description: descController.text,
+                    price: priceController.text,
+                    serviceType: serviceType.value,
+                    pricingModel: pricingModel.value,
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: controller.isLoading.value
+                    ? const SizedBox(
+                  height: 22,
+                  width: 22,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+                    : Text(
+                  controller.isEdit.value
+                      ? "Update Service"
+                      : "Add Service",
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            )),
+          ),
+        ) ,
     );
   }
 

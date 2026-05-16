@@ -14,6 +14,8 @@ class AddVendorServiceController extends GetxController {
   dynamic service;
   var isEdit = false.obs;
 
+  var isLoading = false.obs;
+
 
   var selectedImages = <File>[].obs;
   final ImagePicker picker = ImagePicker();
@@ -53,68 +55,6 @@ class AddVendorServiceController extends GetxController {
     }
   }
 
-/*  Future<void> addOrUpdateService({
-    required String title,
-    required String description,
-    required String price,
-    required String serviceType,
-    required String pricingModel,
-    List<File>? images, // 🔥 for create
-  }) async {
-    try {
-      dynamic response;
-
-      if (isEdit.value) {
-        /// ✅ UPDATE (JSON)
-        final body = {
-          "vendorId": vendorId,
-          "categoryId": selectedCategoryId.value,
-          "title": title,
-          "description": description,
-          "serviceType": serviceType,
-          "pricingModel": pricingModel,
-          "price": int.parse(price),
-        };
-
-        response = await apiService.put(
-          "services/${service["_id"]}",
-          body,withAuth: true
-        );
-
-      } else {
-        /// ✅ CREATE (MULTIPART)
-        response = await apiService.multipartPost(
-          "services",
-          fields: {
-            "vendorId": vendorId,
-            "categoryId": selectedCategoryId.value,
-            "title": title,
-            "description": description,
-            "serviceType": serviceType,
-            "pricingModel": pricingModel,
-            "price": price,
-          },
-          files: images ?? [],
-          fileKey: "images", // must match backend
-        );
-      }
-
-      if (response["success"]) {
-        Get.back();
-        Get.snackbar(
-          "Success",
-          isEdit.value ? "Service updated" : "Service added",
-        );
-      } else {
-        print("Error: ${response['message']}");
-        Get.snackbar("Error", response["message"]);
-      }
-    } catch (e) {
-      print("Error: ${e.toString()}");
-      Get.snackbar("Error", e.toString());
-    }
-  }*/
-
   Future<void> addOrUpdateService({
     required String title,
     required String description,
@@ -123,6 +63,7 @@ class AddVendorServiceController extends GetxController {
     required String pricingModel,
   }) async {
     try {
+      isLoading.value = true;
       dynamic response;
 
       if (isEdit.value) {
@@ -162,16 +103,37 @@ class AddVendorServiceController extends GetxController {
         );
       }
 
+      isLoading.value = false;
+
       if (response["success"]) {
-        Get.back();
+
+        /// 🔥 If backend returns updated service, use it
+        final updatedService = response["data"] ?? {
+          ...service ?? {},
+          "title": title,
+          "description": description,
+          "price": price,
+          "serviceType": serviceType,
+          "pricingModel": pricingModel,
+          "categoryId": {
+            "_id": selectedCategoryId.value,
+          },
+          "images": existingImages, // updated list
+        };
+
+        /// 🔥 update local reference
+        service = updatedService;
+
+        /// 🔥 return updated data to previous screen
+        Get.back(result: updatedService);
+
         Get.snackbar(
           "Success",
           isEdit.value ? "Service updated" : "Service added",
         );
-      } else {
-        Get.snackbar("Error", response["message"]);
       }
     } catch (e) {
+      isLoading.value = false;
       Get.snackbar("Error", e.toString());
     }
   }
@@ -193,35 +155,4 @@ class AddVendorServiceController extends GetxController {
   void removeNewImage(int index) {
     selectedImages.removeAt(index);
   }
-
-/*  Future<void> addService({
-    required String title,
-    required String description,
-    required String price,
-    required String serviceType,
-    required String pricingModel,
-  }) async {
-    try {
-      final body = {
-        "vendorId": vendorId,
-        "categoryId": selectedCategoryId.value, // ✅ from dropdown
-        "title": title,
-        "description": description,
-        "serviceType": serviceType,
-        "pricingModel": pricingModel,
-        "price": int.parse(price),
-      };
-
-      final response = await apiService.post("services", body,withAuth: true);
-
-      if (response["success"]) {
-        Get.back();
-        Get.snackbar("Success", "Service added successfully");
-      } else {
-        Get.snackbar("Error", response["message"]);
-      }
-    } catch (e) {
-      Get.snackbar("Error", e.toString());
-    }
-  }*/
 }
