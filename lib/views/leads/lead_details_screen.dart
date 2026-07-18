@@ -83,7 +83,7 @@ class LeadDetailsScreen extends StatelessWidget {
               ),
 
               /// 💬 MESSAGE
-              _infoCard(
+ /*             _infoCard(
                 title: "Customer Message",
                 icon: Icons.message_outlined,
                 children: [
@@ -91,6 +91,92 @@ class LeadDetailsScreen extends StatelessWidget {
                     _safe(lead["message"], fallback: "No message provided"),
                     style: const TextStyle(height: 1.5),
                   ),
+                ],
+              ),*/
+
+              /// 📝 NOTES
+              _infoCard(
+                title: "Lead Notes",
+                icon: Icons.note_alt_outlined,
+                children: [
+
+                  /// 🔥 ADD NOTE BUTTON
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        _showAddNoteDialog(context, controller);
+                      },
+                      icon: const Icon(Icons.add,color: Colors.white,),
+                      label: const Text("Add Note"),
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  /// 🔥 NOTES LIST
+                  Obx(() {
+                    if (controller.notes.isEmpty) {
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 20),
+                          child: Text("No notes added yet"),
+                        ),
+                      );
+                    }
+
+                    return ListView.separated(
+                      itemCount: controller.notes.length,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      itemBuilder: (_, index) {
+                        final note = controller.notes[index];
+
+                        return Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+
+                              Text(
+                                note["note"] ?? "",
+                                style: const TextStyle(
+                                  height: 1.4,
+                                ),
+                              ),
+
+                              const SizedBox(height: 10),
+
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.access_time,
+                                    size: 14,
+                                    color: Colors.grey,
+                                  ),
+
+                                  const SizedBox(width: 5),
+
+                                  Text(
+                                    _formatDate(note["createdAt"]),
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  }),
                 ],
               ),
 
@@ -194,6 +280,61 @@ class LeadDetailsScreen extends StatelessWidget {
             style: const TextStyle(color: Colors.white),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showAddNoteDialog(
+      BuildContext context,
+      LeadDetailsController controller,
+      ) {
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+
+              const Text(
+                "Add Note",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+
+              const SizedBox(height: 18),
+
+              TextField(
+                controller: controller.noteController,
+                maxLines: 4,
+                decoration: InputDecoration(
+                  hintText: "Write note here...",
+                  filled: true,
+                  fillColor: Colors.grey.shade100,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: controller.addNote,
+                  child: const Text("Submit"),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -192,8 +192,8 @@ class AddVendorServiceScreen extends StatelessWidget {
                                   ));
                                 },
                                 child: isNetwork
-                                    ? Image.network(
-                                  controller.apiService.getImageUrl(allImages[index]),
+                                    ? Image.network(allImages[index]
+                                  /*controller.apiService.getImageUrl(allImages[index])*/,
                                   width: 90,
                                   height: 90,
                                   fit: BoxFit.cover,

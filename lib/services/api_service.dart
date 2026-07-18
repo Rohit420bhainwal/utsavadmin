@@ -7,12 +7,11 @@ import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
 
 class ApiService {
-/*  static const String baseUrl = "https://utbackend-api.onrender.com/api/v1";
-  static const String imageBaseUrl = "https://utbackend-api.onrender.com";*/
+  static const String baseUrl = "https://utbackend-api.onrender.com/api/v1";
+  static const String imageBaseUrl = "https://utbackend-api.onrender.com";
 
-  static const String baseUrl = "http://192.168.50.50:5000/api/v1";
-  /// 🔥 ADD THIS
-  static const String imageBaseUrl = "http://192.168.50.50:5000";
+  // static const String baseUrl = "http://10.74.58.50:5000/api/v1";
+  // static const String imageBaseUrl = "http://10.74.58.50:5000";
 
   final box = GetStorage();
 
