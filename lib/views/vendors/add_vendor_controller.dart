@@ -58,10 +58,10 @@ class AddVendorsController extends GetxController {
         final userRes = await apiService.post(
           "auth/admin-create-vendor",
           {
-            "name": userName,
-            "email": email,
-            "phone": phone,
-            "password": password,
+            "name": userName.trim(),
+            "email": email.trim(),
+            "phone": phone.trim(),
+            "password": password.trim(),
             "role": "vendor",
           },
         );
