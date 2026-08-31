@@ -7,22 +7,19 @@ import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
 
 class ApiService {
-  static const String baseUrl = "https://utbackend-api.onrender.com/api/v1";
-  static const String imageBaseUrl = "https://utbackend-api.onrender.com";
+  // static const String baseUrl = "https://utbackend-api.onrender.com/api/v1";
+  // static const String imageBaseUrl = "https://utbackend-api.onrender.com";
 
-  // static const String baseUrl = "http://10.74.58.50:5000/api/v1";
-  // static const String imageBaseUrl = "http://10.74.58.50:5000";
+  static const String baseUrl = "http://10.189.166.50:5000/api/v1";
+  static const String imageBaseUrl = "http://10.189.166.50:5000";
 
   final box = GetStorage();
 
   /// 🔐 HEADERS
   Future<Map<String, String>> getHeaders({bool withAuth = false}) async {
     final token = await SecureStorageService.getToken();
-print("app_token: $token");
-    final headers = {
-      "Content-Type": "application/json",
-      "x-app-type": "admin"
-    };
+    print("app_token: $token");
+    final headers = {"Content-Type": "application/json", "x-app-type": "admin"};
 
     if (withAuth && token != null) {
       headers["Authorization"] = "Bearer $token";
@@ -33,10 +30,10 @@ print("app_token: $token");
 
   /// 📤 POST (JSON)
   Future<Map<String, dynamic>> post(
-      String endpoint,
-      Map<String, dynamic> body, {
-        bool withAuth = false,
-      }) async {
+    String endpoint,
+    Map<String, dynamic> body, {
+    bool withAuth = false,
+  }) async {
     final url = Uri.parse("$baseUrl/$endpoint");
 
     final response = await http.post(
@@ -50,25 +47,43 @@ print("app_token: $token");
 
   /// 📥 GET
   Future<Map<String, dynamic>> get(
-      String endpoint, {
-        bool withAuth = false,
-        Map<String, String>? queryParams,
-      }) async {
-    final uri = Uri.parse("$baseUrl/$endpoint")
-        .replace(queryParameters: queryParams);
+    String endpoint, {
+    bool withAuth = false,
+    Map<String, String>? queryParams,
+  }) async {
+    final uri =
+        Uri.parse("$baseUrl/$endpoint").replace(queryParameters: queryParams);
 
     final response =
-    await http.get(uri, headers: await getHeaders(withAuth: withAuth));
+        await http.get(uri, headers: await getHeaders(withAuth: withAuth));
 
+    return _processResponse(response);
+  }
+
+  Future<Map<String, dynamic>> patch(
+    String endpoint,
+    Map<String, dynamic> body, {
+    bool withAuth = false,
+  }) async {
+    final url = Uri.parse("$baseUrl/$endpoint");
+    print("PATCH URL: $url");
+    print("PATCH BODY: $body");
+    final response = await http.patch(
+      url,
+      headers: await getHeaders(withAuth: withAuth),
+      body: jsonEncode(body),
+    );
+    print("PATCH $endpoint -> status: ${response.statusCode}");
+    print("PATCH $endpoint -> body: ${response.body}");
     return _processResponse(response);
   }
 
   /// 🔄 PUT (JSON)
   Future<Map<String, dynamic>> put(
-      String endpoint,
-      Map<String, dynamic> body, {
-        bool withAuth = false,
-      }) async {
+    String endpoint,
+    Map<String, dynamic> body, {
+    bool withAuth = false,
+  }) async {
     final url = Uri.parse("$baseUrl/$endpoint");
 
     final response = await http.put(
@@ -85,12 +100,12 @@ print("app_token: $token");
 
   /// 🔥 COMMON MULTIPART METHOD (REUSABLE)
   Future<Map<String, dynamic>> _multipartRequest(
-      String method,
-      String endpoint, {
-        required Map<String, String> fields,
-        required List<File> files,
-        required String fileKey,
-      }) async {
+    String method,
+    String endpoint, {
+    required Map<String, String> fields,
+    required List<File> files,
+    required String fileKey,
+  }) async {
     final uri = Uri.parse("$baseUrl/$endpoint");
 
     var request = http.MultipartRequest(method, uri);
@@ -137,11 +152,11 @@ print("app_token: $token");
 
   /// 📤 MULTIPART POST (CREATE)
   Future<Map<String, dynamic>> multipartPost(
-      String endpoint, {
-        required Map<String, String> fields,
-        required List<File> files,
-        required String fileKey,
-      }) async {
+    String endpoint, {
+    required Map<String, String> fields,
+    required List<File> files,
+    required String fileKey,
+  }) async {
     return _multipartRequest(
       "POST",
       endpoint,
@@ -153,11 +168,11 @@ print("app_token: $token");
 
   /// 🔄 MULTIPART PUT (UPDATE)
   Future<Map<String, dynamic>> multipartPut(
-      String endpoint, {
-        required Map<String, String> fields,
-        required List<File> files,
-        required String fileKey,
-      }) async {
+    String endpoint, {
+    required Map<String, String> fields,
+    required List<File> files,
+    required String fileKey,
+  }) async {
     return _multipartRequest(
       "PUT",
       endpoint,
@@ -174,7 +189,7 @@ print("app_token: $token");
     }
 
     final decodedBody = jsonDecode(response.body);
-
+    print("decodedBody: $decodedBody");
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return decodedBody;
     } else {
